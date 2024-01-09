@@ -17,3 +17,6 @@ Higher accuracy is better.
 - Loss function values does not necessarily range from 0 to 1.
 - Accuracy value do necessarily range from 0 to 1.
 - e.g., 0.7 accuracy indicates 70% values have been predicted correctly.
+# Confusion Matrix
+<img width="791" alt="Screenshot 2024-01-10 at 12 10 35 AM" src="https://github.com/Nouman64-cat/Image-classification-Deep-Learning-/assets/112774247/0015a70a-3a80-456b-9242-909aeb1ad02c">
+
