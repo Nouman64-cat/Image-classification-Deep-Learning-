@@ -1,9 +1,4 @@
-# Step 1: Set Up Google Colab - (Run this code in a Google Colab notebook)
 
-# Step 2: Install TensorFlow (usually pre-installed in Colab)
-# !pip install tensorflow
-
-# Step 3: Import Required Libraries
 import tensorflow as tf
 from tensorflow.keras import datasets, layers, models
 import matplotlib.pyplot as plt
@@ -17,49 +12,83 @@ import matplotlib.pyplot as plt
 
 
 
-
-
-train_images
-
 # Normalize pixel values to be between 0 and 1
 train_images, test_images = train_images / 255.0, test_images / 255.0
 
 
 
-train_images
-
 # Step 5: Define Model Architecture
 model = models.Sequential()
-model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=(32, 32, 3)))
+
+#Layer 1
+
+#convolutional layer for extracting certain features
+model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=(32, 32, 3))) #64 filters , filter size 3x3
+
+#Layer 2
+
+#max pooling layer reduces spatial dimensions
 model.add(layers.MaxPooling2D((2, 2)))
+
+
+#another convolutional layer
 model.add(layers.Conv2D(128, (3, 3), activation='relu'))
+#another 
 model.add(layers.MaxPooling2D((2, 2)))
-model.add(layers.Conv2D(256, (3, 3), activation='relu'))
+
+#another
+model.add(layers.Conv2D(512, (3, 3), activation='relu'))
 
 
 
+#Layer 3
+
+#flattening layer transforming 2D data into 1D array
 model.add(layers.Flatten())
+
+#Layer 4
+
+#fully connected layer
+model.add(layers.Dense(256, activation='relu'))
+
+#another fully connected layer
+model.add(layers.Dense(128, activation='relu'))
+
+#fully connected layer
 model.add(layers.Dense(64, activation='relu'))
-model.add(layers.Dense(10, activation='softmax'))
+
+
+#Output layer
+
+
+model.add(layers.Dense(10, activation='softmax'))#10 represents number of classes
 
 
 
 # Step 6: Compile the Model
 model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
 
 
 
-# Step 7: Train the Model
-history = model.fit(train_images, train_labels, epochs=20,
-                    validation_data=(test_images, test_labels))
+early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
+history = model.fit(
+    train_images, 
+    train_labels, 
+    epochs=60,
+    validation_data=(test_images, test_labels),
+    callbacks=[early_stopping]
+)
 
 
 
 # Step 8: Evaluate Model Performance
+plt.plot(history.history['loss'], label='loss')
+plt.plot(history.history['val_loss'], label='val_loss')
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
+plt.grid()
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.ylim([0, 1])
@@ -76,6 +105,7 @@ from tensorflow.keras.preprocessing import image
 
 
 
+import numpy as np
 
 # Predict the values from the test dataset
 test_predictions = model.predict(test_images)
@@ -83,8 +113,8 @@ test_predictions_classes = np.argmax(test_predictions, axis=1)
 
 
 
-# Convert test labels to class indices if they are in one-hot encoded format
-test_labels_classes = np.argmax(test_labels, axis=1) if test_labels.ndim > 1 else test_labels
+test_labels_classes = test_labels.squeeze()
+
 
 
 
@@ -95,7 +125,7 @@ cm = confusion_matrix(test_labels_classes, test_predictions_classes)
 
 # Plot the confusion matrix using Seaborn
 plt.figure(figsize=(10,8))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+sns.heatmap(cm, annot=True, fmt='d')
 plt.title('Confusion Matrix')
 plt.ylabel('True Label')
 plt.xlabel('Predicted Label')
@@ -116,9 +146,15 @@ uploaded = files.upload()
 
 
 # Assuming you uploaded a single file named 'my_image.jpg'
-img_path = 'cat (2).jpg'
+img_path = 'plane1.jpeg'
 
-img = image.load_img(img_path, target_size=(32, 32))  # Make sure to resize it to the size your model expects
+img = image.load_img(img_path)  # Load the original image
+plt.imshow(img)  # Display the original image
+plt.show()
+
+# Continue with preprocessing after displaying
+img = img.resize((32, 32))  # Resize for the model
+
 
 # Convert the image to a numpy array and normalize it
 img_array = image.img_to_array(img) / 255.0
@@ -127,14 +163,11 @@ img_array = image.img_to_array(img) / 255.0
 img_array = np.expand_dims(img_array, axis=0)
 
 
-img
-
-img_array
-
 result = ["Airplane", "Automobile", "Bird", "Cat", "Deer", "Dog", "Frog", "Horse", "Ship", "Truck"]
 
 
-predictions = model.predict(img_array)
+predictions = model.predict_on_batch(img_array)
+
 
 predicted_class = np.argmax(predictions[0])
 print("Predicted class:", predicted_class)
