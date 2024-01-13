@@ -33,7 +33,7 @@ model.add(layers.MaxPooling2D((2, 2)))
 
 #another convolutional layer
 model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-#another 
+#another
 model.add(layers.MaxPooling2D((2, 2)))
 
 #another
@@ -74,8 +74,8 @@ model.compile(optimizer='adam',
 
 early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
 history = model.fit(
-    train_images, 
-    train_labels, 
+    train_images,
+    train_labels,
     epochs=60,
     validation_data=(test_images, test_labels),
     callbacks=[early_stopping]
@@ -146,7 +146,7 @@ uploaded = files.upload()
 
 
 # Assuming you uploaded a single file named 'my_image.jpg'
-img_path = 'plane1.jpeg'
+img_path = 'deer.jpeg'
 
 img = image.load_img(img_path)  # Load the original image
 plt.imshow(img)  # Display the original image
