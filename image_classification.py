@@ -109,48 +109,54 @@ train_images, test_images = train_images / 255.0, test_images / 255.0
 model = models.Sequential()
 
 #Layer 1
+from tensorflow.keras.regularizers import l2
 
-#convolutional layer for extracting certain features
-model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=(32, 32, 3))) #64 filters , filter size 3x3
+# Create the model
+model = models.Sequential()
 
-#Layer 2
+# Regularization factor
+l2_reg = 0.00001
 
-#max pooling layer reduces spatial dimensions
+# Dropout rate
+dropout_rate = 0.3
+
+# Convolutional layer for extracting certain features
+model.add(layers.Conv2D(64, (3, 3), activation='relu', input_shape=(32, 32, 3), kernel_regularizer=l2(l2_reg)))
+model.add(layers.Dropout(dropout_rate))
+
+# Max pooling layer reduces spatial dimensions
 model.add(layers.MaxPooling2D((2, 2)))
 
+# Another convolutional layer
+model.add(layers.Conv2D(128, (3, 3), activation='relu', kernel_regularizer=l2(l2_reg)))
+model.add(layers.Dropout(dropout_rate))
 
-#another convolutional layer
-model.add(layers.Conv2D(128, (3, 3), activation='relu'))
-#another
+# Another max pooling layer
 model.add(layers.MaxPooling2D((2, 2)))
 
-#another
-model.add(layers.Conv2D(512, (3, 3), activation='relu'))
+# Another convolutional layer
+#model.add(layers.Conv2D(164, (3, 3), activation='relu', kernel_regularizer=l2(l2_reg)))
+#model.add(layers.Dropout(dropout_rate))
 
 
 
-#Layer 3
-
-#flattening layer transforming 2D data into 1D array
+# Flattening layer transforming 2D data into 1D array
 model.add(layers.Flatten())
 
-#Layer 4
+# Fully connected layer
+#model.add(layers.Dense(256, activation='relu', kernel_regularizer=l2(l2_reg)))
+#model.add(layers.Dropout(dropout_rate))
 
-#fully connected layer
-model.add(layers.Dense(256, activation='relu'))
+# Another fully connected layer
+model.add(layers.Dense(128, activation='relu', kernel_regularizer=l2(l2_reg)))
+model.add(layers.Dropout(dropout_rate))
 
-#another fully connected layer
-model.add(layers.Dense(128, activation='relu'))
+# Fully connected layer
+model.add(layers.Dense(64, activation='relu', kernel_regularizer=l2(l2_reg)))
+model.add(layers.Dropout(dropout_rate))
 
-#fully connected layer
-model.add(layers.Dense(64, activation='relu'))
-
-
-#Output layer
-
-
-model.add(layers.Dense(10, activation='softmax'))#10 represents number of classes
-
+# Output layer
+model.add(layers.Dense(10, activation='softmax', kernel_regularizer=l2(l2_reg)))
 
 
 # Step 6: Compile the Model
@@ -160,15 +166,13 @@ model.compile(optimizer='adam',
 
 
 
-early_stopping = tf.keras.callbacks.EarlyStopping(monitor='val_loss',patience=10)
 
-# Use the callback in model.fit
+
 history = model.fit(
     train_images,
     train_labels,
     epochs=60,
     validation_data=(test_images, test_labels),
-    callbacks=[early_stopping]
 )
 
 # Step 8: Evaluate Model Performance
@@ -186,6 +190,7 @@ plt.legend(loc='lower right')
 
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 print(test_acc)
+
 
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
@@ -235,7 +240,7 @@ uploaded = files.upload()
 
 
 # Assuming you uploaded a single file named 'my_image.jpg'
-img_path = 'frog5.jpeg'
+img_path = 'truck2.jpeg'
 
 img = image.load_img(img_path)  # Load the original image
 
@@ -253,6 +258,7 @@ img_array = image.img_to_array(img) / 255.0
 
 # Add an extra dimension to the array (for batch size)
 img_array = np.expand_dims(img_array, axis=0)
+
 
 
 
